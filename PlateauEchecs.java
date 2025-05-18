@@ -4,11 +4,16 @@ import java.util.List;
 public class PlateauEchecs extends Damier {
     private Roi roiBlanc;
     private Roi roiNoir;
+    private Pion pionDoubleEnPassant;
 
     public PlateauEchecs() {
         super(); // Initialise les cases
         initialiser(); // 👈 Appelle la méthode requise par l'abstraction
     }
+
+    public Pion getPionDoubleEnPassant() {
+         return pionDoubleEnPassant;
+     }
 
     @Override
     public void initialiser() {
@@ -149,12 +154,23 @@ public class PlateauEchecs extends Damier {
     public boolean jouerCoup(int startX, int startY, int endX, int endY) {
         Piece piece = getPieceAt(startX, startY);
         if (piece == null) return false;
-
         for (Case cible : piece.getCoupsPossibles()) {
             if (cible.getX() == endX && cible.getY() == endY) {
+                if (piece instanceof Pion && startY != endY && !cible.estOccupee()) {
+                    removePieceAt(startX, endY);
+                }
                 removePieceAt(startX, startY);
                 setPieceAt(endX, endY, piece);
                 piece.setPosition(endX, endY);
+
+                // 3) si Pion double pas → on garde pour le prochain tour
+                if (piece instanceof Pion && Math.abs(endX - startX) == 2) {
+                    pionDoubleEnPassant = (Pion) piece;
+                } else {
+                    // sinon on nettoie (plus de prise en passant possible)
+                    pionDoubleEnPassant = null;
+                }
+
                 piece.setHasMoved(true);
                 return true;
             }

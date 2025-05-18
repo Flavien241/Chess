@@ -32,8 +32,16 @@ public class Pion extends Piece {
             int diagY = y + d;
             if (estDansLimites(nextX, diagY)) {
                 Case caseCible = plateau.getCase(nextX, diagY);
+                // 1) capture normale
                 if (caseCible.estOccupee() && caseCible.contientPieceAdverse(estBlanc)) {
                     coups.add(caseCible);
+                }
+                // 2) prise en passant : case vide, et pion adverse éligible juste à côté
+                else if (!caseCible.estOccupee() && plateau instanceof PlateauEchecs pe) {
+                    Piece adj = pe.getPieceAt(x, diagY);
+                    if (adj instanceof Pion pawnAdj && pawnAdj == pe.getPionDoubleEnPassant()) {
+                        coups.add(caseCible);
+                    }
                 }
             }
         }

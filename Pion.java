@@ -41,6 +41,14 @@ public class Pion extends Piece {
         return coups;
     }
 
+    @Override
+    public void setHasMoved(boolean moved) {
+        super.setHasMoved(moved);
+        if (moved) {
+            premierCoup = false;
+        }
+    }
+
     private boolean estDansLimites(int x, int y) {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
@@ -52,8 +60,8 @@ public class Pion extends Piece {
 
     @Override
     public String getIconPath() {
-        return estBlanc ? "C:\\Users\\flavi\\Downloads\\ChessPieces\\white-pawn.png"
-                        : "C:\\Users\\flavi\\Downloads\\ChessPieces\\black-pawn.png";
+        return estBlanc ? "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\white-pawn.png"
+                        : "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\black-pawn.png";
     }
 
 

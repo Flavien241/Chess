@@ -54,6 +54,7 @@ public class Dame extends Piece {
 
     @Override
     public String getIconPath() {
-        return estBlanc ? "img/dame_blanc.png" : "img/dame_noir.png";
+        return estBlanc ? "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\pion-blanc.png" 
+                        : "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\pion-noir.png";
     }
 }

@@ -7,6 +7,7 @@ public class Jeu extends Observable implements Runnable {
     private boolean partieEnCours = true;
     private boolean dejaSignaleEchec = false;
     private boolean dejaSignaleMat = false;
+    private boolean dejaSignalePat = false;
 
     public Jeu(Damier damier) {
         this.damier = damier;
@@ -20,7 +21,7 @@ public class Jeu extends Observable implements Runnable {
     public void run() {
         while (partieEnCours) {
             try {
-                Thread.sleep(200); // évite saturation CPU
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -30,46 +31,120 @@ public class Jeu extends Observable implements Runnable {
                 dejaSignaleMat = true;
                 String gagnant = !tourBlanc ? "Blancs" : "Noirs";
                 setChanged();
-                notifyObservers("Fin de partie. " + gagnant + " gagnent !");
-            } else if (damier.estSituationCritique(tourBlanc) && !dejaSignaleEchec) {
+                // Nouveau libellé avec "Échec et mat"
+                notifyObservers("Échec et mat ! Les " + gagnant + " gagnent !");
+            }
+            else if (damier instanceof PlateauEchecs ech && ech.estPat(tourBlanc) && !dejaSignalePat) {
+                partieEnCours = false;
+                dejaSignalePat = true;
+                setChanged();
+                notifyObservers("Pat ! Égalité générale.");
+            }
+            else if (damier.estSituationCritique(tourBlanc) && !dejaSignaleEchec) {
                 dejaSignaleEchec = true;
                 setChanged();
                 notifyObservers("Situation critique du joueur " + (tourBlanc ? "blanc" : "noir"));
-            } else if (!damier.estSituationCritique(tourBlanc)) {
+            }
+            else if (!damier.estSituationCritique(tourBlanc)) {
                 dejaSignaleEchec = false;
             }
-            
         }
     }
 
-    public synchronized void jouerCoup(int startX, int startY, int endX, int endY) {
+    public synchronized void jouerCoup(int sx, int sy, int ex, int ey) {
         if (!partieEnCours) return;
-    
-        Piece piece = damier.getPieceAt(startX, startY);
-    
+
+        Piece piece = damier.getPieceAt(sx, sy);
         if (piece == null) {
-            setChanged();
-            notifyObservers("Aucune pièce à cet endroit.");
+            setChanged(); notifyObservers("Aucune pièce à cet endroit."); 
             return;
         }
-    
+
+        // *** Vérification du tour avant toute chose ***
         if (piece.estBlanc() != tourBlanc) {
-            setChanged();
-            notifyObservers("Ce n’est pas votre tour.");
+            setChanged(); 
+            notifyObservers("Ce n’est pas votre tour."); 
             return;
         }
-    
-        // ✅ On délègue au Damier (PlateauEchecs ou PlateauDames)
-        boolean coupValide = damier.jouerCoup(startX, startY, endX, endY);
-    
-        if (coupValide) {
+
+        // Détection du roque
+        boolean estRoque = piece instanceof Roi && Math.abs(ey - sy) == 2;
+        if (estRoque) {
+            // coordonnées de la tour concernée
+            int tourY = (ey > sy) ? 7 : 0;
+            Tour tour = (Tour) damier.getPieceAt(sx, tourY);
+            if (tour == null) {
+                setChanged(); notifyObservers("Roque impossible : pas de tour."); 
+                return;
+            }
+            // simulation du roque
+            int newTourY = (ey > sy) ? ey - 1 : ey + 1;
+            // retrait temporaire
+            damier.removePieceAt(sx, sy);
+            damier.removePieceAt(sx, tourY);
+            piece.setPosition(ex, ey);
+            tour.setPosition(sx, newTourY);
+            damier.setPieceAt(ex, ey, piece);
+            damier.setPieceAt(sx, newTourY, tour);
+
+            // interdiction si roi en échec
+            if (damier.estSituationCritique(piece.estBlanc())) {
+                // restauration
+                damier.removePieceAt(ex, ey);
+                damier.removePieceAt(sx, newTourY);
+                piece.setPosition(sx, sy);
+                tour.setPosition(sx, tourY);
+                damier.setPieceAt(sx, sy, piece);
+                damier.setPieceAt(sx, tourY, tour);
+
+                setChanged();
+                notifyObservers("Roque interdit : roi en échec lors du passage.");
+                return;
+            }
+
+            // tout est OK → valider le roque
+            piece.setHasMoved(true);
+            tour.setHasMoved(true);
+            // bascule de tour
             tourBlanc = !tourBlanc;
             setChanged();
-            notifyObservers(); // rafraîchir l’affichage
-        } else {
+            notifyObservers();  // pour rafraîchir l’UI
+            return;
+        }
+
+        
+
+        Piece prise = damier.getPieceAt(ex, ey);
+
+        // 1) Simulation du coup
+        boolean valid = damier.jouerCoup(sx, sy, ex, ey);
+        if (!valid) {
             setChanged();
             notifyObservers("Coup invalide");
+            return;
         }
+
+        // 2) Vérification que le roi n’est pas en échec après ce coup
+        boolean enEchec = damier.estSituationCritique(piece.estBlanc());
+        if (enEchec) {
+            // Restauration de l’état initial
+            damier.removePieceAt(ex, ey);
+            damier.setPieceAt(sx, sy, piece);
+            piece.setPosition(sx, sy);
+            if (prise != null) {
+                damier.setPieceAt(ex, ey, prise);
+            }
+            setChanged();
+            notifyObservers("Coup interdit : mettrait le roi en échec");
+            return;
+        }
+
+        // 3) Validation définitive
+        piece.setHasMoved(true);
+        tourBlanc = !tourBlanc;
+        setChanged();
+        notifyObservers();
+        
     }
     
 

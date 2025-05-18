@@ -63,11 +63,37 @@ public class MaFenetre extends JFrame implements Observer {
         }
     }
 
+    private boolean coupLegal(Piece piece, Case cible) {
+        PlateauEchecs pe = (PlateauEchecs) jeu.getDamier();
+        int oldX = piece.getX(), oldY = piece.getY();
+        Piece prise = pe.getPieceAt(cible.getX(), cible.getY());
+
+        // Simulation du coup
+        pe.removePieceAt(oldX, oldY);
+        pe.setPieceAt(cible.getX(), cible.getY(), piece);
+        piece.setPosition(cible.getX(), cible.getY());
+
+        // Test : roi toujours attaqué ?
+        boolean enEchec = pe.estSituationCritique(piece.estBlanc());
+
+        // Reprise de la situation initiale
+        pe.removePieceAt(cible.getX(), cible.getY());
+        pe.setPieceAt(oldX, oldY, piece);
+        piece.setPosition(oldX, oldY);
+        if (prise != null) {
+            pe.setPieceAt(cible.getX(), cible.getY(), prise);
+        }
+
+        return !enEchec;
+    }
+
     private void afficherDeplacementsPossibles(Case c) {
         resetCouleurs();
         if (c.getPiece() != null) {
             for (Case cible : c.getPiece().getCoupsPossibles()) {
-                labels[cible.getX()][cible.getY()].setBackground(Color.GREEN);
+                if (coupLegal(c.getPiece(), cible)) {
+                    labels[cible.getX()][cible.getY()].setBackground(Color.GREEN);
+                }
             }
         }
     }
@@ -125,6 +151,10 @@ public class MaFenetre extends JFrame implements Observer {
         if (arg instanceof String message) {
             if (message.contains("Échec et mat")) {
                 JOptionPane.showMessageDialog(this, message, "🎉 Fin de la partie", JOptionPane.INFORMATION_MESSAGE);
+                jeu.stop();
+                dispose();
+            } else if (message.contains("Pat")) {
+                JOptionPane.showMessageDialog(this, message, "♟ Pat - Égalité", JOptionPane.INFORMATION_MESSAGE);
                 jeu.stop();
                 dispose();
             } else if (message.contains("Échec")) {

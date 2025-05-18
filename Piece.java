@@ -6,12 +6,17 @@ public abstract class Piece {
     protected Damier plateau; // ici, type plus générique
     protected DecCasesAccessibles dca;
 
+    protected boolean hasMoved = false;
+
     public Piece(int x, int y, boolean estBlanc, Damier plateau) {
         this.x = x;
         this.y = y;
         this.estBlanc = estBlanc;
         this.plateau = plateau;
     }
+
+    public boolean hasMoved() { return hasMoved; }
+    public void setHasMoved(boolean moved) { this.hasMoved = moved; }
 
     public Damier getPlateau() {
         return plateau;

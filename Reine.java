@@ -21,7 +21,7 @@ public class Reine extends Piece {
 
     @Override
     public String getIconPath() {
-        return estBlanc ? "C:\\Users\\flavi\\Downloads\\ChessPieces\\white-queen.png"
-                        : "C:\\Users\\flavi\\Downloads\\ChessPieces\\black-queen.png";
+        return estBlanc ? "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\white-queen.png"
+                        : "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\black-queen.png";
     }
 }

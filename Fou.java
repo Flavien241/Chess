@@ -21,7 +21,7 @@ public class Fou extends Piece {
 
     @Override
     public String getIconPath() {
-        return estBlanc ? "C:\\Users\\flavi\\Downloads\\ChessPieces\\white-bishop.png"
-                        : "C:\\Users\\flavi\\Downloads\\ChessPieces\\black-bishop.png";
+        return estBlanc ? "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\white-bishop.png"
+                        : "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\black-bishop.png";
     }
 }

@@ -68,61 +68,98 @@ public class PlateauEchecs extends Damier {
     }
 
     @Override
-public boolean estSituationCritique(boolean blanc) {
-    Roi roi = getRoi(blanc);
-    if (roi == null) return false;
-    for (Piece p : getToutesLesPieces(!blanc)) {
-        for (Case c : p.getCoupsPossibles()) {
-            if (c.getX() == roi.getX() && c.getY() == roi.getY()) {
-                return true;
+    public boolean estSituationCritique(boolean blanc) {
+        Roi roi = getRoi(blanc);
+        if (roi == null) return false;
+        for (Piece p : getToutesLesPieces(!blanc)) {
+            for (Case c : p.getCoupsPossibles()) {
+                if (c.getX() == roi.getX() && c.getY() == roi.getY()) {
+                    return true;
+                }
             }
         }
+        return false;
     }
-    return false;
-}
 
-@Override
-public boolean estFinDePartie(boolean blanc) {
-    if (!estSituationCritique(blanc)) return false;
+    @Override
+    public boolean estFinDePartie(boolean blanc) {
+        if (!estSituationCritique(blanc)) return false;
 
-    for (Piece p : getToutesLesPieces(blanc)) {
-        for (Case c : p.getCoupsPossibles()) {
-            int oldX = p.getX(), oldY = p.getY();
-            Piece temp = getPieceAt(c.getX(), c.getY());
+        for (Piece p : getToutesLesPieces(blanc)) {
+            for (Case c : p.getCoupsPossibles()) {
+                int oldX = p.getX(), oldY = p.getY();
+                Piece temp = getPieceAt(c.getX(), c.getY());
+                removePieceAt(oldX, oldY);
+                setPieceAt(c.getX(), c.getY(), p);
+                p.setPosition(c.getX(), c.getY());
 
-            removePieceAt(oldX, oldY);
-            setPieceAt(c.getX(), c.getY(), p);
-            p.setPosition(c.getX(), c.getY());
+                boolean encoreEchec = estSituationCritique(blanc);
 
-            boolean encoreEchec = estSituationCritique(blanc);
+                // annulation
+                setPieceAt(oldX, oldY, p);
+                p.setPosition(oldX, oldY);
+                setPieceAt(c.getX(), c.getY(), temp);
 
-            // annulation
-            setPieceAt(oldX, oldY, p);
-            p.setPosition(oldX, oldY);
-            setPieceAt(c.getX(), c.getY(), temp);
-
-            if (!encoreEchec) return false;
+                if (!encoreEchec){
+                    return false;
+                }
+            }
         }
+        return true;
     }
-    return true;
-}
+
+
+    /**
+     * Renvoie true s'il n'y a aucun coup légal pour le joueur 'blanc'
+     * et que le roi n'est pas en échec => pat (stalemate).
+     */
+    public boolean estPat(boolean blanc) {
+        // Si le roi est en échec, ce n'est pas un pat
+        if (estSituationCritique(blanc)) {
+            return false;
+        }
+        // Pour chaque pièce du joueur
+        for (Piece p : getToutesLesPieces(blanc)) {
+            // pour chaque coup possible (sans tenir compte de l'échec)
+            for (Case c : p.getCoupsPossibles()) {
+                int oldX = p.getX(), oldY = p.getY();
+                Piece temp = getPieceAt(c.getX(), c.getY());
+                // simuler le coup
+                removePieceAt(oldX, oldY);
+                setPieceAt(c.getX(), c.getY(), p);
+                p.setPosition(c.getX(), c.getY());
+                // si après le coup on n'est pas en échec, ce n'est pas un pat
+                boolean enEchec = estSituationCritique(blanc);
+                // restaurer
+                setPieceAt(oldX, oldY, p);
+                p.setPosition(oldX, oldY);
+                setPieceAt(c.getX(), c.getY(), temp);
+                if (!enEchec) {
+                    return false;
+                }
+            }
+        }
+        // aucune issue trouvée ⇒ pat
+        return true;
+    }
 
 
 
     @Override
-public boolean jouerCoup(int startX, int startY, int endX, int endY) {
-    Piece piece = getPieceAt(startX, startY);
-    if (piece == null) return false;
+    public boolean jouerCoup(int startX, int startY, int endX, int endY) {
+        Piece piece = getPieceAt(startX, startY);
+        if (piece == null) return false;
 
-    for (Case cible : piece.getCoupsPossibles()) {
-        if (cible.getX() == endX && cible.getY() == endY) {
-            removePieceAt(startX, startY);
-            setPieceAt(endX, endY, piece);
-            piece.setPosition(endX, endY);
-            return true;
+        for (Case cible : piece.getCoupsPossibles()) {
+            if (cible.getX() == endX && cible.getY() == endY) {
+                removePieceAt(startX, startY);
+                setPieceAt(endX, endY, piece);
+                piece.setPosition(endX, endY);
+                piece.setHasMoved(true);
+                return true;
+            }
         }
+        return false;
     }
-    return false;
-}
 
 }

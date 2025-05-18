@@ -27,6 +27,26 @@ public class Roi extends Piece {
                 }
             }
         }
+
+        if (!hasMoved()) {
+            // petit roque (tour à y=7)
+            Piece pTourD = plateau.getPieceAt(x, 7);
+            if (pTourD instanceof Tour tourD && !tourD.hasMoved()
+                && plateau.getCase(x,5).getPiece() == null
+                && plateau.getCase(x,6).getPiece() == null) {
+                coups.add(plateau.getCase(x, 6));
+            }
+
+            // grand roque (tour à y=0)
+            Piece pTourG = plateau.getPieceAt(x, 0);
+            if (pTourG instanceof Tour tourG && !tourG.hasMoved()
+                && plateau.getCase(x,1).getPiece() == null
+                && plateau.getCase(x,2).getPiece() == null
+                && plateau.getCase(x,3).getPiece() == null) {
+                coups.add(plateau.getCase(x, 2));
+            }
+        }
+
         return coups;
     }
 
@@ -41,7 +61,7 @@ public class Roi extends Piece {
 
     @Override
     public String getIconPath() {
-        return estBlanc ? "C:\\Users\\flavi\\Downloads\\ChessPieces\\white-king.png"
-                        : "C:\\Users\\flavi\\Downloads\\ChessPieces\\black-king.png";
+        return estBlanc ? "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\white-king.png"
+                        : "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\black-king.png";
     }
 }

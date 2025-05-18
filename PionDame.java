@@ -46,8 +46,8 @@ public class PionDame extends Piece {
 
     @Override
     public String getIconPath() {
-        return estBlanc ? "C:\\Users\\flavi\\Downloads\\ChessPieces\\white-king.png"
-                        : "C:\\Users\\flavi\\Downloads\\ChessPieces\\black-king.png";
+        return estBlanc ? "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\pion-blanc.png"
+                        : "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\pion-noir.png";
     }
 
     public boolean doitEtrePromu() {

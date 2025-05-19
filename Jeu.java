@@ -1,6 +1,9 @@
 import java.util.List;
 import java.util.Observable;
 
+import javax.swing.JOptionPane;
+import java.util.Optional;
+
 public class Jeu extends Observable implements Runnable {
     private Damier damier;
     private boolean tourBlanc = true;
@@ -141,6 +144,36 @@ public class Jeu extends Observable implements Runnable {
 
         // 3) Validation définitive
         piece.setHasMoved(true);
+
+        // — Promotion de pion en dernière rangée —
+        if (piece instanceof Pion && (ex == 0 || ex == 7)) {
+            // Options disponibles
+            String[] options = { "Dame", "Tour", "Fou", "Cavalier" };
+            int choix = JOptionPane.showOptionDialog(
+                null,
+                "Choisissez la pièce pour promouvoir votre pion :",
+                "Promotion",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]
+            );
+            // Instancier la pièce choisie
+            Piece promue;
+            boolean blanc = piece.estBlanc();
+            PlateauEchecs pe = (PlateauEchecs) damier;
+            switch (choix) {
+                case 1 -> promue = new Tour(ex, ey, blanc, pe);
+                case 2 -> promue = new Fou(ex, ey, blanc, pe);
+                case 3 -> promue = new Cavalier(ex, ey, blanc, pe);
+                default -> promue = new Reine(ex, ey, blanc, pe);
+            }
+            // Remplacer le pion par la pièce promue
+            damier.setPieceAt(ex, ey, promue);
+        }
+
+        // Bascule de tour et notification
         tourBlanc = !tourBlanc;
         setChanged();
         notifyObservers();

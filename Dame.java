@@ -9,42 +9,38 @@ public class Dame extends Piece {
 
     @Override
     public List<Case> getCoupsPossibles() {
-        List<Case> captures = new ArrayList<>();
+        List<Case> captures    = new ArrayList<>();
         List<Case> deplacements = new ArrayList<>();
-        int[] directions = {-1, 1};
+        int[] dirs = { -1, +1 };
 
-        for (int dx : directions) {
-            for (int dy : directions) {
-                analyserDirection(dx, dy, captures, deplacements);
+        // Pour chaque diagonale
+        for (int dx : dirs) {
+            for (int dy : dirs) {
+                int nx = x + dx, ny = y + dy;
+                // 1) déplacement simple
+                if (estDansLimites(nx, ny)) {
+                    Case c = plateau.getCase(nx, ny);
+                    if (!c.estOccupee()) {
+                        deplacements.add(c);
+                    }
+                    // 2) capture par saut
+                    else if (c.contientPieceAdverse(estBlanc)) {
+                        int cx = x + 2*dx, cy = y + 2*dy;
+                        if (estDansLimites(cx, cy) 
+                            && !plateau.getCase(cx, cy).estOccupee()) {
+                            captures.add(plateau.getCase(cx, cy));
+                        }
+                    }
+                }
             }
         }
 
+        // si capture possible, seules les captures sont autorisées
         return captures.isEmpty() ? deplacements : captures;
     }
 
-    private void analyserDirection(int dx, int dy, List<Case> captures, List<Case> deplacements) {
-        int cx = x + dx;
-        int cy = y + dy;
-        boolean pieceAdverseRencontree = false;
-
-        while (cx >= 0 && cx < 8 && cy >= 0 && cy < 8) {
-            Case c = plateau.getCase(cx, cy);
-            if (c.getPiece() == null) {
-                if (pieceAdverseRencontree) {
-                    captures.add(c); // Case après la pièce adverse
-                    break; // Une seule capture autorisée par direction
-                } else {
-                    deplacements.add(c); // Déplacement normal
-                }
-            } else {
-                if (c.getPiece().estBlanc() == estBlanc) break; // allié = bloqué
-                if (pieceAdverseRencontree) break; // déjà une pièce adverse
-                pieceAdverseRencontree = true;
-            }
-
-            cx += dx;
-            cy += dy;
-        }
+    private boolean estDansLimites(int x, int y) {
+        return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 
     @Override

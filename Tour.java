@@ -19,7 +19,7 @@ public class Tour extends Piece {
 
     @Override
     public String getIconPath() {
-        return estBlanc ? "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\white-rook.png"
-                        : "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\black-rook.png";
+        return estBlanc ? "ChessPieces/white-rook.png"
+                        : "ChessPieces/black-rook.png";
     }
 }

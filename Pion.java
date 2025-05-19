@@ -68,8 +68,8 @@ public class Pion extends Piece {
 
     @Override
     public String getIconPath() {
-        return estBlanc ? "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\white-pawn.png"
-                        : "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\black-pawn.png";
+        return estBlanc ? "ChessPieces/white-pawn.png"
+                        : "ChessPieces/black-pawn.png";
     }
 
 

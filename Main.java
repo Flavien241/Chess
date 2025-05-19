@@ -21,6 +21,8 @@ public class Main {
             return;
         }
 
+    
+
         Jeu jeu = new Jeu(damier);
         new Thread(jeu).start();
 

@@ -61,7 +61,7 @@ public class Roi extends Piece {
 
     @Override
     public String getIconPath() {
-        return estBlanc ? "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\white-king.png"
-                        : "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\black-king.png";
+        return estBlanc ? "ChessPieces/white-king.png"
+                        : "ChessPieces/black-king.png";
     }
 }

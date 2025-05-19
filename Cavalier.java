@@ -44,7 +44,7 @@ public class Cavalier extends Piece {
 
     @Override
     public String getIconPath() {
-        return estBlanc ? "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\white-knight.png"
-                        : "C:\\Users\\etulyon1\\Documents\\Chess\\ChessPieces\\black-knight.png";
+        return estBlanc ? "ChessPieces/white-knight.png"
+                        : "ChessPieces/black-knight.png";
     }
 }

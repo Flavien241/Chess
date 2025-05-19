@@ -64,27 +64,32 @@ public class MaFenetre extends JFrame implements Observer {
     }
 
     private boolean coupLegal(Piece piece, Case cible) {
-        PlateauEchecs pe = (PlateauEchecs) jeu.getDamier();
-        int oldX = piece.getX(), oldY = piece.getY();
-        Piece prise = pe.getPieceAt(cible.getX(), cible.getY());
+        // En mode Échecs : on simule pour interdire les coups qui laissent le roi en échec
+        if (jeu.getDamier() instanceof PlateauEchecs pe) {
+            int oldX = piece.getX(), oldY = piece.getY();
+            Piece prise = pe.getPieceAt(cible.getX(), cible.getY());
 
-        // Simulation du coup
-        pe.removePieceAt(oldX, oldY);
-        pe.setPieceAt(cible.getX(), cible.getY(), piece);
-        piece.setPosition(cible.getX(), cible.getY());
+            // Simulation du coup
+            pe.removePieceAt(oldX, oldY);
+            pe.setPieceAt(cible.getX(), cible.getY(), piece);
+            piece.setPosition(cible.getX(), cible.getY());
 
-        // Test : roi toujours attaqué ?
-        boolean enEchec = pe.estSituationCritique(piece.estBlanc());
+            // Test : roi toujours attaqué ?
+            boolean enEchec = pe.estSituationCritique(piece.estBlanc());
 
-        // Reprise de la situation initiale
-        pe.removePieceAt(cible.getX(), cible.getY());
-        pe.setPieceAt(oldX, oldY, piece);
-        piece.setPosition(oldX, oldY);
-        if (prise != null) {
-            pe.setPieceAt(cible.getX(), cible.getY(), prise);
+            // Reprise de la situation initiale
+            pe.removePieceAt(cible.getX(), cible.getY());
+            pe.setPieceAt(oldX, oldY, piece);
+            piece.setPosition(oldX, oldY);
+            if (prise != null) {
+                pe.setPieceAt(cible.getX(), cible.getY(), prise);
+            }
+
+            return !enEchec;
         }
 
-        return !enEchec;
+        // En mode Dames (ou tout autre Damier) : on autorise tous les coups légaux listés
+        return true;
     }
 
     private void afficherDeplacementsPossibles(Case c) {
